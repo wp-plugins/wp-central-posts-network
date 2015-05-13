@@ -20,8 +20,6 @@ class WPCPN_Admin {
 	 */
 	protected static $instance = null;
 
-
-
 	const NONCE = 'wpcpn_nonce_form';
 
 	/**
@@ -41,6 +39,15 @@ class WPCPN_Admin {
 	 * @var Object
 	 */
 	public $post_selector;
+
+		/**
+	 * Holds a reference to the post selector class
+	 *
+	 * @since 1.0.3
+	 *
+	 * @var Object
+	 */
+	public $wpcpn_requests;
 
 
 	/**
@@ -62,10 +69,11 @@ class WPCPN_Admin {
 		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
-
 		$status = apply_filters('wpcpn_activate_featured_requests', true );
 
 		if ( get_current_blog_id() != 1 && $status ) {
+				$this->wpcpn_requests = new WPCPN_Requests();
+
 				add_filter( 'post_row_actions', array( $this, 'post_row_actions') );
 				add_filter( 'manage_edit-post_columns', array($this, 'add_post_columns') );
 				add_action( 'manage_posts_custom_column' , array( $this, 'post_custom_columns' ) );
@@ -73,8 +81,15 @@ class WPCPN_Admin {
 				add_action( 'admin_footer', array($this, 'admin_footer') );
 		}
 
-		if ( WPCPN_IS_MAIN_SITE && current_user_can('manage_network') ) {
-			$this->post_selector = new WPCPN_Post_Selector();
+		if ( current_user_can('manage_network') ) {
+			/**
+			 * Always initializes post_selector on the main site,
+			 * but for others sites only initializes if it has sections defined
+			 */
+			if ( WPCPN_IS_MAIN_SITE || ( !WPCPN_IS_MAIN_SITE &&  is_array( apply_filters('wpcpn_posts_section', null) ) ) ) {
+				$this->post_selector = new WPCPN_Post_Selector();
+			}
+
 		}
 	}
 
@@ -137,7 +152,7 @@ class WPCPN_Admin {
 				$request = WPCPN_Requests::get_request($blog_id, $post_id);
 
 				if ( $request == NULL )
-					echo _('Unsolicited', 'wpcpn');
+					echo __('Unsolicited', 'wpcpn');
 				else {
 
 					if ( $request->status == 'AW' )

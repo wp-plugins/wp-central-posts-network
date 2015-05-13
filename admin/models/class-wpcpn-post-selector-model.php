@@ -81,12 +81,9 @@ class WPCPN_Post_Selector_Model {
 		$meta_key = WPCPN_Post_Selector_Model::META_KEY . $group . '_' . $section;
 		$old_posts = get_option($meta_key);
 
-
 		//Set old posts with the approve status (they aren't published anymore)
-		foreach ($old_posts['posts'] as $blog_id =>  $_old_posts) {
-			foreach ($_old_posts as $blog_post) {
-				WPCPN_Requests::approve( $blog_id, $blog_post );
-			}
+		foreach ($old_posts['posts'] as $_old_posts) {
+			WPCPN_Requests::approve( $_old_posts['blog_id'], $_old_posts['post_id'] );
 		}
 
 		$arrPosts = array();
@@ -98,8 +95,8 @@ class WPCPN_Post_Selector_Model {
 				$arrPosts['posts'][] = array('blog_id' => (int) $pieces[0],'post_id' => (int) $pieces[1]);
 
 				//If we have pending requests for this post, we need to update it status
-				if ( ! WPCPN_Requests::get_request($pieces[0], $pieces[1]) ) {
-					WPCPN_Requests::insert_request($pieces[0], $pieces[1], __('Published on the main site by the super admin.', 'wpcpn'));
+				if ( ! WPCPN_Requests::get_request($pieces[0], $pieces[1], get_current_blog_id() ) ) {
+					WPCPN_Requests::insert_request($pieces[0], $pieces[1], __('Published on the main site by the super admin.', 'wpcpn'), get_current_blog_id() );
 				}
 
 				WPCPN_Requests::publish($pieces[0], $pieces[1]);
