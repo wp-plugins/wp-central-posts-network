@@ -10,7 +10,7 @@ Donate link:
 Tags: multisite, posts-selector, global,posts
 Requires at least: 4.1
 Tested up to: 4.2
-Stable tag: 1.0.0
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,7 +112,7 @@ By the default admins of the sites can request that a single post shows up on th
 
 This functionality can be deactivate by using the following code:
 ```php
-add_filter('wpcpn_activate_feature_requests', 'mysite_wpcpn_disable_featured_requests');
+add_filter('wpcpn_activate_featured_requests', 'mysite_wpcpn_disable_featured_requests');
 function mysite_wpcpn_disable_featured_requests( $status ) {
   return false;
 }
